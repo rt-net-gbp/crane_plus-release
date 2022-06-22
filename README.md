@@ -1,47 +1,114 @@
-# crane_plus_description
+# crane_plus
 
-このパッケージはCRANE+V2のモデルデータ(xacro)を所持しています。
+[![industrial_ci](https://github.com/rt-net/crane_plus/workflows/industrial_ci/badge.svg?branch=master)](https://github.com/rt-net/crane_plus/actions?query=workflow%3Aindustrial_ci+branch%3Amaster)
 
-## display robot model
+ROS 2 package suite of CRANE+V2.
 
-下記のコマンドを実行して、`robot_state_publisher`、`joint_state_publisher`、`rviz2`を起動します。
+<img src=https://www.rt-shop.jp/images/RT/CRANEplusV2.png width=400px/><img src=https://rt-net.github.io/images/crane-plus/pick_and_place.gif width=400px />
 
-CRANE+V2のモデルが表示されるので、xacroファイルのデバッグに役立ちます。
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+  - [Binary installation](#binary-installation)
+  - [Source Build](#source-build)
+- [Quick Start](#quick-start)
+- [Packages](#packages)
+- [License](#license)
+- [Disclaimer](#disclaimer)
+
+## Requirements
+
+- CRANE+V2
+  - [Product Introduction](https://rt-net.jp/products/cranev2/)
+  - [Web Shop](https://www.rt-shop.jp/index.php?main_page=product_info&cPath=1348_1&products_id=3626&language=ja)
+- Linux OS
+  - Ubuntu 20.04
+- ROS
+  - [Foxy Fitzroy](https://index.ros.org/doc/ros2/Installation/Foxy/)
+
+## Installation
+
+### Docker images
+
+ビルド済みのパッケージ含むDocker imageを用意してます。
+詳細は[.docker/README.md](./.docker/README.md)を参照してください。
+
+### Binary installation
+
+TBD
+
+### Source Build
 
 ```sh
-$ ros2 launch crane_plus_description display.launch.py
+# Setup ROS environment
+$ source /opt/ros/foxy/setup.bash
+
+# Download crane_plus repository
+$ mkdir -p ~/ros2_ws/src
+$ cd ~/ros2_ws/src
+$ git clone https://github.com/rt-net/crane_plus.git
+
+# Install dependencies
+$ rosdep install -r -y -i --from-paths .
+
+# Build & Install
+$ cd ~/ros2_ws
+$ colcon build --symlink-install
+$ source ~/ros2_ws/install/setup.bash
 ```
 
-![display.launch.py](https://rt-net.github.io/images/crane-plus/display_launch.png)
+## Quick Start
 
-## configure servo angle limits
+```sh
+# Connect CRANE+V2 to PC, then
+$ source ~/ros2_ws/install/setup.bash
+$ ros2 launch crane_plus_examples demo.launch.py port_name:=/dev/ttyUSB0
 
-CRANE+V2の実機を動かす場合は、
-事前にサーボモータ内部の角度リミット（`CW Angle Limit`、`CCW Angle Limit`）を設定してください。
+# Terminal 2
+$ source ~/ros2_ws/install/setup.bash
+$ ros2 launch crane_plus_examples example.launch.py example:='gripper_control'
 
-CRANE+V2に搭載されているサーボモータはROBOTISのAX-12Aのため、
-[Dynamixel Wizard 2](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_wizard2/)
-を使用して角度リミットを設定できます。
-
-![dynamixel wizard2](https://rt-net.github.io/images/crane-plus/dynamixel_wizard2.png)
-
-[crane_plus.urdf.xacro](./urdf/crane_plus.urdf.xacro)には、
-下記のように各関節の角度リミットが定義されています。
-この角度リミットに近い値をサーボモータに設定することを推奨します。
-
-```xml
-  <xacro:property name="M_PI" value="3.14159"/>
-  <xacro:property name="TO_RADIAN" value="${M_PI / 180.0}"/>
-  <xacro:property name="SERVO_HOME" value="${TO_RADIAN * 150.0}"/>
-  <xacro:property name="JOINT_VELOCITY_LIMIT" value="2.0"/>
-  <xacro:property name="JOINT_1_LOWER_LIMIT" value="${0.0 * TO_RADIAN - SERVO_HOME}"/>
-  <xacro:property name="JOINT_1_UPPER_LIMIT" value="${300.0 * TO_RADIAN - SERVO_HOME}"/>
-  <xacro:property name="JOINT_2_LOWER_LIMIT" value="${45.45 * TO_RADIAN - SERVO_HOME}"/>
-  <xacro:property name="JOINT_2_UPPER_LIMIT" value="${252.20 * TO_RADIAN - SERVO_HOME}"/>
-  <xacro:property name="JOINT_3_LOWER_LIMIT" value="${3.52 * TO_RADIAN - SERVO_HOME}"/>
-  <xacro:property name="JOINT_3_UPPER_LIMIT" value="${290.62 * TO_RADIAN - SERVO_HOME}"/>
-  <xacro:property name="JOINT_4_LOWER_LIMIT" value="${44.57 * TO_RADIAN - SERVO_HOME}"/>
-  <xacro:property name="JOINT_4_UPPER_LIMIT" value="${251.32 * TO_RADIAN - SERVO_HOME}"/>
-  <xacro:property name="JOINT_HAND_LOWER_LIMIT" value="${109.38 * TO_RADIAN - SERVO_HOME}"/>
-  <xacro:property name="JOINT_HAND_UPPER_LIMIT" value="${188.27 * TO_RADIAN - SERVO_HOME}"/>
+# Press [Ctrl-c] to terminate.
 ```
+
+<img src=https://rt-net.github.io/images/crane-plus/gripper_control.gif width=500px />
+
+詳細は[crane_plus_examples](./crane_plus_examples/README.md)
+を参照してください。
+
+## Packages
+
+- crane_plus_control
+  - [README](./crane_plus_control/README.md)
+  - CRANE+V2を制御するパッケージです
+  - USB通信ポートの設定方法をREAMDEに記載してます
+- crane_plus_description
+  - [README](./crane_plus_description/README.md)
+  - CRANE+V2のモデルデータ（xacro）を定義するパッケージです
+- crane_plus_examples
+  - [README](./crane_plus_examples/README.md)
+  - CRANE+V2のサンプルコード集です
+- crane_plus_ignition
+  - [README](./crane_plus_ignition/README.md)
+  - CRANE+V2のIgnition Gazeboシミュレーションパッケージです
+- crane_plus_moveit_config
+  - [README](./crane_plus_moveit_config/README.md)
+  - CRANE+V2の`moveit2`設定ファイルです
+
+## License
+
+このリポジトリはApache 2.0ライセンスの元、公開されています。 
+ライセンスについては[LICENSE](./LICENSE)を参照ください。
+
+サーボモータのAX-12Aに関するCADモデルの使用については、ROBOTIS社より使用許諾を受けています。 
+CRANE+V2に使用されているROBOTIS社の部品類にかかる著作権、商標権、その他の知的財産権は、ROBOTIS社に帰属します。
+
+We have obtained permission from ROBOTIS Co., Ltd. to use CAD models relating to servo motors AX-12A. The proprietary rights relating to any components or parts manufactured by ROBOTIS and used in this product, including but not limited to copyrights, trademarks, and other intellectual property rights, shall remain vested in ROBOTIS.
+
+## Disclaimer
+
+本ソフトウェアはApache 2.0ライセンスで、「AS IS」（現状有姿のまま）で提供しています。本ソフトウェアに関する無償サポートはありません。
+
+当該製品および当ソフトウェアの使用中に生じたいかなる損害も株式会社アールティでは一切の責任を負いかねます。 ユーザー自身で作成されたプログラムに適切な制限動作が備わっていない場合、本体の損傷や、本体が周囲や作業者に接触、あるいは衝突し、思わぬ重大事故が発生する危険があります。 ユーザーの責任において十分に安全に注意した上でご使用下さい。
+
