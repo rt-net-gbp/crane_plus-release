@@ -1,0 +1,30 @@
+ros-foxy-crane-plus-control (1.0.0-5focal) focal; urgency=high
+
+  * パッケージバージョン表記の更新 (#40 <https://github.com/rt-net/crane_plus/issues/40>)
+  * xacroファイルの読み込みを一元化するためのPythonスクリプトを追加 (#36 <https://github.com/rt-net/crane_plus/issues/36>)
+  * GripperActionControllerに関するコメントを削除 (#37 <https://github.com/rt-net/crane_plus/issues/37>)
+  * hardware_interfaceのパラメータをxacro引数から変更する (#35 <https://github.com/rt-net/crane_plus/issues/35>)
+  * Use new ros2 control interface (#27 <https://github.com/rt-net/crane_plus/issues/27>)
+  * Contributors: Kuwamai, Shota Aoki
+
+ -- RT Corporation <shop@rt-net.jp>  Tue, 21 Jun 2022 15:00:00 -0000
+
+ros-foxy-crane-plus-control (0.1.0-5focal) focal; urgency=high
+
+  * Fix READMEs (#25 <https://github.com/rt-net/crane_plus/issues/25>)
+  * Update control error log (#24 <https://github.com/rt-net/crane_plus/issues/24>)
+  * Update maintainer and author in package.xml (#23 <https://github.com/rt-net/crane_plus/issues/23>)
+  * Update for release (#21 <https://github.com/rt-net/crane_plus/issues/21>)
+  * Update crane_plus_control (#16 <https://github.com/rt-net/crane_plus/issues/16>)
+  * Add joint_values example and pick_and_place example (#15 <https://github.com/rt-net/crane_plus/issues/15>)
+  * Fix launch files (#12 <https://github.com/rt-net/crane_plus/issues/12>)
+  * Use joint_trajectory_controller for gripper control (#11 <https://github.com/rt-net/crane_plus/issues/11>)
+  * Refactor to pass ament_lint check (#9 <https://github.com/rt-net/crane_plus/issues/9>)
+  * Revert "Use new joint handles (#4 <https://github.com/rt-net/crane_plus/issues/4>)" (#7 <https://github.com/rt-net/crane_plus/issues/7>)
+  * Use new joint handles (#4 <https://github.com/rt-net/crane_plus/issues/4>)
+  * Add crane plus control (#3 <https://github.com/rt-net/crane_plus/issues/3>)
+  * Contributors: Shota Aoki
+
+ -- RT Corporation <shop@rt-net.jp>  Tue, 10 Nov 2020 15:00:00 -0000
+
+
