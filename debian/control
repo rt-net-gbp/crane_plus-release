@@ -1,0 +1,12 @@
+Source: ros-foxy-crane-plus-gazebo
+Section: misc
+Priority: optional
+Maintainer: RT Corporation <shop@rt-net.jp>
+Build-Depends: debhelper (>= 9.0.0), ros-foxy-ament-cmake, ros-foxy-ament-lint-auto <!nocheck>, ros-foxy-ament-lint-common <!nocheck>, ros-foxy-crane-plus-description, ros-foxy-crane-plus-moveit-config, ros-foxy-gazebo-ros-pkgs, ros-foxy-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-foxy-crane-plus-gazebo
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-foxy-crane-plus-description, ros-foxy-crane-plus-moveit-config, ros-foxy-gazebo-ros-pkgs, ros-foxy-ros-workspace
+Description: CRANE+V2 gazebo simulation package
