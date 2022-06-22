@@ -1,0 +1,16 @@
+ros-foxy-crane-plus (1.0.0-5focal) focal; urgency=high
+
+  * パッケージバージョン表記の更新 (#40 <https://github.com/rt-net/crane_plus/issues/40>)
+  * Contributors: Kuwamai
+
+ -- RT Corporation <shop@rt-net.jp>  Tue, 21 Jun 2022 15:00:00 -0000
+
+ros-foxy-crane-plus (0.1.0-5focal) focal; urgency=high
+
+  * Update maintainer and author in package.xml (#23 <https://github.com/rt-net/crane_plus/issues/23>)
+  * Update for release (#21 <https://github.com/rt-net/crane_plus/issues/21>)
+  * Contributors: Shota Aoki
+
+ -- RT Corporation <shop@rt-net.jp>  Tue, 10 Nov 2020 15:00:00 -0000
+
+
