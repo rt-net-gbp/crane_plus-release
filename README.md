@@ -1,170 +1,114 @@
-# crane_plus_control
+# crane_plus
 
-このパッケージは[ros2_control](https://github.com/ros-controls/ros2_control)
-をベースにした、CRANE+V2 のコントローラパッケージです。
+[![industrial_ci](https://github.com/rt-net/crane_plus/workflows/industrial_ci/badge.svg?branch=master)](https://github.com/rt-net/crane_plus/actions?query=workflow%3Aindustrial_ci+branch%3Amaster)
 
-## ros2_control関連ファイル
+ROS 2 package suite of CRANE+V2.
 
-- `crane_plus_control::CranePlusHardware (crane_plus_hardware)`
-  - 本パッケージがエクスポートする[Hardware Components](https://ros-controls.github.io/control.ros.org/getting_started.html#hardware-components)です
-  - CRANE+V2実機と通信します
-  - [crane_plus_description/urdf/crane_plus.ros2_control.xacro](../crane_plus_description/urdf/crane_plus.ros2_control.xacro)から読み込まれます
-- [launch/crane_plus_control.launch.py](./launch/crane_plus_control.launch.py)
-  - [Controller Manager](https://ros-controls.github.io/control.ros.org/getting_started.html#controller-manager)とコントローラを起動するlaunchファイルです
-- [config/crane_plus_controllers.yaml](./config/crane_plus_controllers.yaml)
-  - Controller Managerのパラメータファイルです
+<img src=https://www.rt-shop.jp/images/RT/CRANEplusV2.png width=400px/><img src=https://rt-net.github.io/images/crane-plus/pick_and_place.gif width=400px />
 
-## 実機のセットアップ
+## Table of Contents
 
-`crane_plus_hardware`がCRANE+V2実機と通信するために、
-PCとCRANE+V2の設定が必要です。
+- [Requirements](#requirements)
+- [Installation](#installation)
+  - [Binary installation](#binary-installation)
+  - [Source Build](#source-build)
+- [Quick Start](#quick-start)
+- [Packages](#packages)
+- [License](#license)
+- [Disclaimer](#disclaimer)
 
-**正しく設定できていない場合、CRANE+V2が動作しない、振動する、などの不安定な動きをするため注意してください**
+## Requirements
 
-### USB通信ポートの設定
+- CRANE+V2
+  - [Product Introduction](https://rt-net.jp/products/cranev2/)
+  - [Web Shop](https://www.rt-shop.jp/index.php?main_page=product_info&cPath=1348_1&products_id=3626&language=ja)
+- Linux OS
+  - Ubuntu 20.04
+- ROS
+  - [Foxy Fitzroy](https://index.ros.org/doc/ros2/Installation/Foxy/)
 
-`crane_plus_hardware`はUSB通信ポート（`/dev/ttyUSB*`）を経由してCRANE+V2と通信します。
+## Installation
 
-次のコマンドでアクセス権限を変更します。
+### Docker images
 
-```sh
-# /dev/ttyUSB0を使用する場合
-$ sudo chmod 666 /dev/ttyUSB0
-```
+ビルド済みのパッケージ含むDocker imageを用意してます。
+詳細は[.docker/README.md](./.docker/README.md)を参照してください。
 
-### latency_timerの設定
+### Binary installation
 
-CRANE+V2を100 Hz周期で制御するためには、
-USB通信ポートとサーボモータの設定を変更します。
+TBD
 
-下記のコマンドを実行してUSB通信ポートの`latency_timer`を変更します。
-
-参考資料：https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_wizard2/#usb-latency-setting
-
-```sh
-# /dev/ttyUSB0を使用する場合
-
-# rootに切り替える
-$ sudo su
-```
-
-```txt
-# echo 1 > /sys/bus/usb-serial/devices/ttyUSB0/latency_timer
-# cat /sys/bus/usb-serial/devices/ttyUSB0/latency_timer
-1
-# exit
-```
-
-### Return Delay Timeの設定
-
-CRANE+V2に搭載されているサーボモータ[Dynamixel AX-12A](https://emanual.robotis.com/docs/en/dxl/ax/ax-12a/)
-には`Return Delay Time`というパラメータがあります。
-
-デフォルトは250がセットされており、
-サーボモータが`Instruction Packet`を受信してから`Status Packet`を送信するまでに`500 usec`の遅れがあります。
-
-[Dynamixel Wizard 2](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_wizard2/)
-を使用して`Retrun Delay Time`を小さくすると、制御周期が早くなります。
-
-![Setting Return Delay Time](https://rt-net.github.io/images/crane-plus/setting_return_delay_time.png)
-
-## ノードの起動
-
-`crane_plus_control.launch.py`を実行すると、`Controller Manager`ノードが起動し、
-以下のコントローラが読み込まれます。
-
-- crane_plus_joint_state_controller (`joint_state_controller/JointStateController`)
-- crane_plus_arm_controller (`joint_trajectory_controller/JointTrajectoryController`)
-- crane_plus_gripper_controller (`joint_trajectory_controller/JointTrajectoryController`)
-
-ノードが起動した後、
-次のコマンドでジョイント角度情報（`joint_states`）を表示できます
+### Source Build
 
 ```sh
-$ ros2 topic echo /joint_states
+# Setup ROS environment
+$ source /opt/ros/foxy/setup.bash
+
+# Download crane_plus repository
+$ mkdir -p ~/ros2_ws/src
+$ cd ~/ros2_ws/src
+$ git clone https://github.com/rt-net/crane_plus.git
+
+# Install dependencies
+$ rosdep install -r -y -i --from-paths .
+
+# Build & Install
+$ cd ~/ros2_ws
+$ colcon build --symlink-install
+$ source ~/ros2_ws/install/setup.bash
 ```
 
-## Controller Managerのパラメータ
-
-`Controller Manager`のパラメータは
-[config/crane_plus_controllers.yaml](./config/crane_plus_controllers.yaml)
-で設定しています。
-
-```yaml
-controller_manager:
-  ros__parameters:
-    update_rate: 100  # Hz
-
-    crane_plus_arm_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
-    crane_plus_gripper_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
-    joint_state_controller:
-      type: joint_state_controller/JointStateController
-```
-
-### 制御周期
-
-`update_rate`は制御周期を設定します。
-
-CRANE+V2に使用しているサーボモータの仕様により、
-100 Hz以上の周期で制御できません。
-
-### コントローラ
-
-CRANE+V2の腕の制御用に`crane_plus_arm_controller`を、
-グリッパの制御用に`crane_plus_gripper_controller`を設定しています。
-
-## crane_plus_hardwareのパラメータ
-
-`crane_plus_hardware`のパラメータは
-[crane_plus_description/urdf/crane_plus.urdf.xacro](../crane_plus_description/urdf/crane_plus.urdf.xacro)
-で設定しています。
-
-```xml
-<xacro:arg name="use_gazebo" default="false" />
-<xacro:arg name="port_name" default="/dev/ttyUSB0" />
-<xacro:arg name="baudrate" default="1000000" />
-<xacro:arg name="timeout_seconds" default="5.0" />
-<xacro:arg name="read_velocities" default="0" />
-<xacro:arg name="read_loads" default="0" />
-<xacro:arg name="read_voltages" default="0" />
-<xacro:arg name="read_temperatures" default="0" />
-```
-
-### USB通信ポート
-
-`port_name`はCRANE+V2との通信に使用するUSB通信ポートを設定します。
-
-### ボーレート
-
-`baudrate`はCRANE+V2に搭載したDynamixelとの通信ボーレートを設定します。
-
-デフォルト値にはDynamixel AX-12Aの最高ボーレートである`1000000` (1 Mbps)を設定しています。
-
-### 通信タイムアウト
-
-`timeout_seconds`は通信タイムアウト時間（秒）を設定します。
-
-`crane_plus_hardware`は、一定時間（デフォルト5秒間）通信に失敗し続けると、
-read/write動作を停止します。
-USBケーブルや電源ケーブルが抜けた場合等に有効です。
-
-### サーボパラメータ
-
-`read_velocities`、`read_loads`、`read_voltages`、`read_temperatures`
-は、サーボの回転速度、電圧、負荷、温度を読み取るためのパラメータです。
-
-`1`をセットすると、サーボパラメータを読み取ります。
-
-これらのパラメータを読み取ると通信データ量が増加するため、制御周期が100 Hzより低下します。
-
-読み取ったパラメータは`dynamic_joint_states`トピックとしてパブリッシュされます。
+## Quick Start
 
 ```sh
-$ ros2 topic echo /dynamic_joint_states
+# Connect CRANE+V2 to PC, then
+$ source ~/ros2_ws/install/setup.bash
+$ ros2 launch crane_plus_examples demo.launch.py port_name:=/dev/ttyUSB0
+
+# Terminal 2
+$ source ~/ros2_ws/install/setup.bash
+$ ros2 launch crane_plus_examples example.launch.py example:='gripper_control'
+
+# Press [Ctrl-c] to terminate.
 ```
 
----
+<img src=https://rt-net.github.io/images/crane-plus/gripper_control.gif width=500px />
 
-[back to top](#crane_plus_control)
+詳細は[crane_plus_examples](./crane_plus_examples/README.md)
+を参照してください。
+
+## Packages
+
+- crane_plus_control
+  - [README](./crane_plus_control/README.md)
+  - CRANE+V2を制御するパッケージです
+  - USB通信ポートの設定方法をREAMDEに記載してます
+- crane_plus_description
+  - [README](./crane_plus_description/README.md)
+  - CRANE+V2のモデルデータ（xacro）を定義するパッケージです
+- crane_plus_examples
+  - [README](./crane_plus_examples/README.md)
+  - CRANE+V2のサンプルコード集です
+- crane_plus_ignition
+  - [README](./crane_plus_ignition/README.md)
+  - CRANE+V2のIgnition Gazeboシミュレーションパッケージです
+- crane_plus_moveit_config
+  - [README](./crane_plus_moveit_config/README.md)
+  - CRANE+V2の`moveit2`設定ファイルです
+
+## License
+
+このリポジトリはApache 2.0ライセンスの元、公開されています。 
+ライセンスについては[LICENSE](./LICENSE)を参照ください。
+
+サーボモータのAX-12Aに関するCADモデルの使用については、ROBOTIS社より使用許諾を受けています。 
+CRANE+V2に使用されているROBOTIS社の部品類にかかる著作権、商標権、その他の知的財産権は、ROBOTIS社に帰属します。
+
+We have obtained permission from ROBOTIS Co., Ltd. to use CAD models relating to servo motors AX-12A. The proprietary rights relating to any components or parts manufactured by ROBOTIS and used in this product, including but not limited to copyrights, trademarks, and other intellectual property rights, shall remain vested in ROBOTIS.
+
+## Disclaimer
+
+本ソフトウェアはApache 2.0ライセンスで、「AS IS」（現状有姿のまま）で提供しています。本ソフトウェアに関する無償サポートはありません。
+
+当該製品および当ソフトウェアの使用中に生じたいかなる損害も株式会社アールティでは一切の責任を負いかねます。 ユーザー自身で作成されたプログラムに適切な制限動作が備わっていない場合、本体の損傷や、本体が周囲や作業者に接触、あるいは衝突し、思わぬ重大事故が発生する危険があります。 ユーザーの責任において十分に安全に注意した上でご使用下さい。
+
